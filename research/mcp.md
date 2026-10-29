@@ -2,7 +2,9 @@
 
 ## Overview
 
-Model Context Protocol (MCP) is an open, Anthropic-initiated protocol for connecting AI model applications (hosts) to external tools and data sources (servers). It was inspired by the Language Server Protocol (LSP) — the same idea applied to AI context integration rather than language-server integration. The current specification version is `2025-06-18` (date-versioned releases); the latest stable schema is `2025-11-25`.
+Model Context Protocol (MCP) is an open, Anthropic-initiated protocol for connecting AI model applications (hosts) to external tools and data sources (servers). It was inspired by the Language Server Protocol (LSP) — the same idea applied to AI context integration rather than language-server integration. The current MCP revision is [`2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/). Earlier revisions through `2025-11-25` use an initialization-based lifecycle and remain relevant for backward compatibility, but they are not the current protocol profile.
+
+> **Version scope:** The architecture, lifecycle, session-management, and compatibility assessment below describe the initialization-based `2025-11-25` protocol family. The current `2026-07-28` revision is stateless: requests declare their protocol version in `_meta.io.modelcontextprotocol/protocolVersion`, and `server/discover` provides capabilities and supported versions without the old `initialize` handshake. See the [current versioning specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning) for migration and backward compatibility.
 
 MCP standardizes:
 - How AI applications discover what tools and data a server exposes
@@ -13,7 +15,7 @@ MCP deliberately does **not** dictate how an AI application uses LLMs or manages
 
 ---
 
-## Protocol Architecture
+## Protocol Architecture (initialization-based revisions)
 
 ### Participants
 
@@ -107,7 +109,7 @@ No true token-level streaming of results; instead:
 
 Either party sends `notifications/cancelled` with `{ "requestId": "...", "reason": "..." }`. The receiver SHOULD stop processing and free resources. Race conditions (response already sent) are handled gracefully — receivers MAY ignore stale cancellations. The `initialize` request cannot be cancelled.
 
-### Session Management (Streamable HTTP)
+### Session Management (Streamable HTTP, initialization-based revisions)
 
 - Server issues a cryptographically secure `Mcp-Session-Id` header in the `InitializeResult` response
 - Client includes it on all subsequent requests
@@ -148,7 +150,7 @@ From the agent's perspective (what the LLM sees and interacts with):
 
 ---
 
-## Agent Compatibility Assessment
+## Agent Compatibility Assessment (initialization-based revisions)
 
 ### What it handles natively
 
